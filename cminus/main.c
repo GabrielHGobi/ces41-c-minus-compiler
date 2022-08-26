@@ -42,7 +42,7 @@ int main( int argc, char * argv[] )
         exit(1);
     }
     listing = stdout; /* send listing to screen */
-    fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
+    fprintf(listing,"\nC- COMPILATION: %s\n",pgm);
     while (getToken()!=ENDFILE);
 
     return 0;
