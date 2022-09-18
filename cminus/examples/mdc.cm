@@ -1,4 +1,5 @@
-/* Um programa para calcular mdc */
+/* Um programa para calcular mdc 
+   Segundo o algoritmo de Euclides*/
 int gdc (int u, int v)
 {
     if (v == 0) return u;

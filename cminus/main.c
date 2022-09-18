@@ -43,6 +43,7 @@ int main( int argc, char * argv[] )
     }
     listing = stdout; /* send listing to screen */
     fprintf(listing,"\nC- COMPILATION: %s\n",pgm);
+
     while (getToken()!=ENDFILE);
 
     return 0;
