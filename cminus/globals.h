@@ -16,8 +16,6 @@
 #include <ctype.h>
 #include <string.h>
 
-#define ENDFILE 0
-
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -29,7 +27,17 @@
 /* MAXRESERVED = the number of reserved words */
 #define MAXRESERVED 8
 
-typedef int TokenType;
+typedef enum
+    /* control tokens */
+    {ENDFILE, ERROR,
+    /* reserved words */
+    IF, ELSE, INT, RETURN, VOID, WHILE,
+    /* multicharacter tokens */
+    ID, NUM,
+    /* special symbols */
+    PLUS, MINUS, TIMES, OVER, LT, LTEQ, GT, GTEQ, EQ, DIF, ASSIGN,
+    SEMI, COMMA, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE
+    } TokenType;
 
 extern FILE *source;  /* source code text file */
 extern FILE *listing; /* listing output text file */
