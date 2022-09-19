@@ -1,15 +1,20 @@
 # Name of the project
 PROJ_NAME=cminus
- 
+
+# Base directories
+BUILD_DIR=./build/
+SRC_DIR=./src/
+
 # .c files
-C_SOURCE=$(wildcard *.c)
+C_SOURCE=$(wildcard $(SRC_DIR)*.c)
  
 # flex files
-FLEX_SOURCE=$(wildcard *.l)
-FLEX_RESULT=$(wildcard *.yy.*)
+FLEX_SOURCE=$(wildcard $(SRC_DIR)*.l)
+FLEX_RESULT=lex.yy.c
 
 # Object files
-OBJ=$(C_SOURCE:.c=.o)
+OBJ_FILE=$(wildcard *.o)
+OBJ=$(subst .c,.o,$(subst src,build,$(C_SOURCE)))
  
 # Compiler
 CC=gcc
@@ -21,10 +26,17 @@ LA=flex
 FLAGS= -lfl
      
 # Compilation and linking
-all:
+all: build_dir
 	$(LA) $(FLEX_SOURCE)
-	$(CC) -c $(C_SOURCE) 
-	$(CC) -o $(PROJ_NAME) $(OBJ) $(FLAGS)  
+	@ mv $(FLEX_RESULT) $(SRC_DIR)
+	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT)
+	@ mv *.o -t $(BUILD_DIR)
+	$(CC) -o $(PROJ_NAME) $(BUILD_DIR)*.o $(FLAGS)  
  
 clean:
-	rm -rf $(FLEX_RESULT) $(OBJ) $(PROJ_NAME)
+	rm -rf $(BUILD_DIR) $(SRC_DIR)$(FLEX_RESULT) $(PROJ_NAME)
+
+build_dir:
+	@ mkdir -p build
+
+.PHONY: all clean
