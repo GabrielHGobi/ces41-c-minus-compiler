@@ -6,6 +6,7 @@ C_SOURCE=$(wildcard *.c)
  
 # flex files
 FLEX_SOURCE=$(wildcard *.l)
+FLEX_RESULT=$(wildcard *.yy.*)
 
 # Object files
 OBJ=$(C_SOURCE:.c=.o)
@@ -26,4 +27,4 @@ all:
 	$(CC) -o $(PROJ_NAME) $(OBJ) $(FLAGS)  
  
 clean:
-	rm -rf $(FLEX_RESULT) $(OBJ) $(PROJ_NAME)  
+	rm -rf $(FLEX_RESULT) $(OBJ) $(PROJ_NAME)

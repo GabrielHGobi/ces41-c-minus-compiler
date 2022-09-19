@@ -58,16 +58,17 @@ whitespace  [ \r\t]+
 {whitespace}    {/* skip whitespace */}
 "/*"            { int state = 1;
                   char c;
-                  while(state != 3){
+                  while(state != 3 || state != 4){
                     c = input();
                     switch (state){
                       case 1:
                         if(c == '*') state = 2;
-                        if(c == EOF) state = 3;
+                        if(c == EOF) state = 4;
                         if(c == '\n') {lineno++; printLine(src);}
                         break;
                       case 2:
-                        if(c == '/' | c == EOF) state = 3;
+                        if(c == '/') state = 3;
+                        if(c == EOF) state = 4;
                         else{
                           if(c == '*') state = 2;
                           else{
@@ -75,6 +76,9 @@ whitespace  [ \r\t]+
                             if(c == '\n') {lineno++; printLine(src);} 
                           }
                         }
+                        break;
+                      case 4:
+                        return ERROR;
                         break;
                       default:
                         break;
