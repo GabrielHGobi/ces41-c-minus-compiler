@@ -15,7 +15,7 @@
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
 extern int yylex(void);
-extern FILE* src;
+extern FILE* redundant_source;
 %}
 
 digit       [0-9]
@@ -54,7 +54,7 @@ whitespace  [ \r\t]+
 "}"             {return RBRACE;}
 {number}        {return NUM;}
 {identifier}    {return ID;}
-{newline}       {lineno++; printLine(src);}
+{newline}       {lineno++; printLine(redundant_source);}
 {whitespace}    {/* skip whitespace */}
 "/*"            { int state = 1;
                   char c;
@@ -64,14 +64,14 @@ whitespace  [ \r\t]+
                       case 1:
                         if(c == '*') state = 2;
                         if(c == EOF) state = 3;
-                        if(c == '\n') {lineno++; printLine(src);}
+                        if(c == '\n') {lineno++; printLine(redundant_source);}
                         break;
                       case 2:
                         if(c == '/' || c == EOF) state = 3;
                         else{
                           if(c != '*') {
                             state = 1;
-                            if(c == '\n') {lineno++; printLine(src);} 
+                            if(c == '\n') {lineno++; printLine(redundant_source);} 
                           }
                         }
                         break;
@@ -89,7 +89,7 @@ TokenType getToken(void)
   TokenType currentToken;
   if (firstTime)
   { firstTime = FALSE;
-    lineno++; printLine(src);
+    lineno++; printLine(redundant_source);
     yyin = source;
     yyout = listing;
   }
