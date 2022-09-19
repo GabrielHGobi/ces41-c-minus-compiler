@@ -67,11 +67,9 @@ whitespace  [ \r\t]+
                         if(c == '\n') {lineno++; printLine(src);}
                         break;
                       case 2:
-                        if(c == '/') state = 3;
-                        if(c == EOF) return ERROR;
+                        if(c == '/' || c == EOF) state = 3;
                         else{
-                          if(c == '*') state = 2;
-                          else{
+                          if(c != '*') {
                             state = 1;
                             if(c == '\n') {lineno++; printLine(src);} 
                           }
