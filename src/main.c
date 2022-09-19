@@ -15,7 +15,6 @@
 /* allocate global variables */
 int lineno = 0;
 FILE * source;
-FILE * src;
 FILE * listing;
 FILE * code;
 
@@ -36,7 +35,6 @@ int main( int argc, char * argv[] )
     if (strchr (pgm, '.') == NULL)
         strcat(pgm,".cm");
     source = fopen(pgm,"r");
-    src = fopen(pgm, "r");
     if (source==NULL)
     { fprintf(stderr,"File %s not found\n",pgm);
         exit(1);

@@ -15,5 +15,5 @@
  * and its lexeme to the listing file
  */
 void printToken( TokenType, const char* );
-void printLine(FILE* src);
+void printLine(FILE* source);
 #endif
