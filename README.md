@@ -67,7 +67,7 @@ The core of the lexical analysis is found in `cminus.l` file. In this file, we h
 
 There's a line number tracking while processing tokens (incremented in each "newline" pattern match). For comment processing (`/* comments come like this */`), we implemented a finite state machine to ensure that file will be scanned only after the comment is closed by a `*/`, i.e. everything inside is ignored. In this implementation, if the comment isn't closed, all characters after an comment opening will be considered as a comment, and no error will be raised. If some character or string matches none of the allowed patterns, it will be treated as error, and scan continues.
 
-When running the scanner, the result is printed to standart output (`stdout`). It mainly consists of the program lines (numbered) followed by the tokens and it's lexeme (if not a reserved word or symbol). Next, we provide the scanning result for mdc example program.
+When running the scanner, the result is printed to standart output (`stdout`). It mainly consists of the program lines (numbered) followed by the tokens and it's lexeme (if not a reserved word or symbol). Next, we provide the scanning result for mdc example program, and for a program with invalid character.
 
 ```
 C- COMPILATION: examples/mdc.cm
@@ -157,4 +157,36 @@ C- COMPILATION: examples/mdc.cm
         15: ;
 16: }   16: }
         16: EOF
+```
+
+```
+C- COMPILATION: examples/invalid_ch.cm
+1: /* Program that uses a invalid character */
+2: 
+3: void main(void)
+        3: reserved word: void
+        3: ID, name= main
+        3: (
+        3: reserved word: void
+        3: )
+4: {
+        4: {
+5:     int x@test = 99; /* @ is an illegal character */ 
+        5: reserved word: int
+        5: ID, name= x
+        5: ERROR: @
+        5: ID, name= test
+        5: =
+        5: NUM, val= 99
+        5: ;
+6:     output(x@test);
+        6: ID, name= output
+        6: (
+        6: ID, name= x
+        6: ERROR: @
+        6: ID, name= test
+        6: )
+        6: ;
+7: }    7: }
+        7: EOF
 ```
