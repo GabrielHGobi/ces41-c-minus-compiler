@@ -2,7 +2,7 @@
 PROJ_NAME=cminus
 
 # Project element
-LEX=_lexical_analyzer
+LEX=_scanner
 
 # Base directories
 BUILD_DIR=./build/
@@ -29,9 +29,9 @@ LA=flex
 FLAGS= -lfl
      
 # Compilation and linking
-all: lexical	
+all: scanner	
 
-lexical: build_dir
+scanner: build_dir
 	$(LA) $(FLEX_SOURCE)
 	@ mv $(FLEX_RESULT) $(SRC_DIR)
 	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT)
