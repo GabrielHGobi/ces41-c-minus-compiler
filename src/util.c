@@ -62,8 +62,8 @@ void printToken( TokenType token, const char* tokenString )
   }
 }
 
-void printLine(FILE* source){
+void printLine(FILE* src){
   char line[1024];
-  fgets(line, 1024, source);
+  fgets(line, 1024, src);
   printf("%d: %-1s",lineno, line);
 }
