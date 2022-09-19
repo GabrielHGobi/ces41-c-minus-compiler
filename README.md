@@ -4,7 +4,7 @@ Compilers (CES41) project.
 Prof. Ana Carolina Lorena
 
 ### Students:
-| [<img src="https://avatars.githubusercontent.com/u/67982371?v=4" width="115"><br><sub>Gabriel Gobi</sub>](https://github.com/GabrielHGobi) | [<img src="https://avatars.githubusercontent.com/u/78799492?v=4" width="115"><br><sub>Samuel Vendramini</sub>](https://github.com/samuelv8) | [<img src="https://avatars.githubusercontent.com/u/80128519?v=4" width="115"><br><sub>Tiago Lopes</sub>](https://github.com/TL1981) |
+| [<img src="https://avatars.githubusercontent.com/u/67982371?v=4" width="115"><br><sub>Gabriel Gobi</sub>](https://github.com/GabrielHGobi) | [<img src="https://avatars.githubusercontent.com/u/78799492?v=4" width="115"><br><sub>Samuel Vendramini</sub>](https://github.com/samuelv8) | [<img src="https://avatars.githubusercontent.com/u/80128519?v=4" width="115"><br><sub>Thiago Lopes</sub>](https://github.com/TL1981) |
 |:-:|:-:|:-:|
 
 
