@@ -46,7 +46,7 @@ Run using provided `Makefile`, with:
  ```
 Will generate `build` folder and a executable file. For example, to generate the lexical analyzer, one can run:
  ```
- make lexical
+ make scanner
  ```
 Which generates `cminus_scanner` file.
 
