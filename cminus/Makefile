@@ -17,7 +17,7 @@ CC=gcc
 LA=flex
 
 # Flags
-FLAGS=-lfl
+FLAGS= -lfl
      
 # Compilation and linking
 all:

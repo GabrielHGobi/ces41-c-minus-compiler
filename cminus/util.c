@@ -61,3 +61,9 @@ void printToken( TokenType token, const char* tokenString )
       fprintf(listing,"Unknown token: %d\n",token);
   }
 }
+
+void printLine(FILE* src){
+  char line[1024];
+  fgets(line, 1024, src);
+  printf("%d: %-1s",lineno, line);
+}
