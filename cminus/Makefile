@@ -6,7 +6,7 @@ C_SOURCE=$(wildcard *.c)
  
 # flex files
 FLEX_SOURCE=$(wildcard *.l)
- 
+
 # Object files
 OBJ=$(C_SOURCE:.c=.o)
  
@@ -17,15 +17,13 @@ CC=gcc
 LA=flex
 
 # Flags
-FLAGS=-lfl
+FLAGS= -lfl
      
 # Compilation and linking
-all: $(PROJ_NAME)
- 
-$(PROJ_NAME): 
-	$(LA) $(FLEX_SOURCE) 
+all:
+	$(LA) $(FLEX_SOURCE)
 	$(CC) -c $(C_SOURCE) 
-	$(CC) -o $(PROJ_NAME) $(OBJ) $(FLAGS) 
+	$(CC) -o $(PROJ_NAME) $(OBJ) $(FLAGS)  
  
 clean:
-	rm -rf $(OBJ) $(PROJ_NAME)  
+	rm -rf $(FLEX_RESULT) $(OBJ) $(PROJ_NAME)  

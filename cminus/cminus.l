@@ -15,6 +15,7 @@
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
 extern int yylex(void);
+extern FILE* src;
 %}
 
 digit       [0-9]
@@ -22,7 +23,7 @@ number      {digit}+
 letter      [a-zA-Z]
 identifier  {letter}+
 newline     \n
-whitespace  [ \t]+
+whitespace  [ \r\t]+
 
 %%
 
@@ -53,21 +54,32 @@ whitespace  [ \t]+
 "}"             {return RBRACE;}
 {number}        {return NUM;}
 {identifier}    {return ID;}
-{newline}       {lineno++;}
+{newline}       {lineno++; printLine(src);}
 {whitespace}    {/* skip whitespace */}
-"/*"            { char c;
-                  int done = FALSE;
-                  do
-                  { while ((c=input())!='*'){
-                      if (c == EOF) break;
-                      if (c == '\n') lineno++;
-                    };
-                    while ((c=input())=='*'){
-                      if (c == EOF) break;
-                      if (c == '\n') lineno++;
-                    };
-                    if (c == '/') done = TRUE;
-                  } while (!done);
+"/*"            { int state = 1;
+                  char c;
+                  while(state != 3){
+                    c = input();
+                    switch (state){
+                      case 1:
+                        if(c == '*') state = 2;
+                        if(c == EOF) state = 3;
+                        if(c == '\n') {lineno++; printLine(src);}
+                        break;
+                      case 2:
+                        if(c == '/' | c == EOF) state = 3;
+                        else{
+                          if(c == '*') state = 2;
+                          else{
+                            state = 1;
+                            if(c == '\n') {lineno++; printLine(src);} 
+                          }
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                  }
                 }
 .               {return ERROR;}
 
@@ -78,7 +90,7 @@ TokenType getToken(void)
   TokenType currentToken;
   if (firstTime)
   { firstTime = FALSE;
-    lineno++;
+    lineno++; printLine(src);
     yyin = source;
     yyout = listing;
   }
