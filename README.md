@@ -3,13 +3,16 @@ Compilers (CES41) project.
 
 Prof. Ana Carolina Lorena
 
-### Students:
+### Students
+
 | [<img src="https://avatars.githubusercontent.com/u/67982371?v=4" width="115"><br><sub>Gabriel Gobi</sub>](https://github.com/GabrielHGobi) | [<img src="https://avatars.githubusercontent.com/u/78799492?v=4" width="115"><br><sub>Samuel Vendramini</sub>](https://github.com/samuelv8) | [<img src="https://avatars.githubusercontent.com/u/80128519?v=4" width="115"><br><sub>Thiago Lopes</sub>](https://github.com/TL1981) |
 |:-:|:-:|:-:|
 
 
 ## Preparation
+
 ### Dependencies
+
 Install `flex`. On Debain-based Linux distributions, you can run the following command:
 ```
 sudo apt-get install flex
@@ -34,7 +37,9 @@ Inside `src` we have all source files used in project (some may be generated in 
 In `examples` we provide some example programs to execute tests.
 
  ## Execution
+
  ### Compile project
+
 Run using provided `Makefile`, with:
  ```
  make element
@@ -54,6 +59,7 @@ Some program examples were provided in `examples` folder. After compiling, you c
 ./cminus_scanner examples/mdc.cm
 ```
  ### Other
+
  To clean project generated files, run:
  ```
  make clean
@@ -61,6 +67,7 @@ Some program examples were provided in `examples` folder. After compiling, you c
 
 ## Explanation
 ### Lexical analyzer - _scanner_
+
 In order to build a lexical analyzer for C- language we used the support of the `flex` tool. 
 
 The core of the lexical analysis is found in `cminus.l` file. In this file, we have the basic rules (regex) for matching strings as: number, identifier, whitespace and newline. There are some reserved words, namely: if, else, int, return, void and while. The symbols supported by the language are treated specially too. For each matching pattern, there is a `TokenType enum` associated with it, which represents the token. Basically, the scan will return the next token (string matching any reserved word, symbol or other pattern) in file, using provided `flex` interface. 
