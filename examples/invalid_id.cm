@@ -3,5 +3,5 @@
 void main(void)
 {
     int x1 = 1; /* numbers are not allowed in id name */
-    output("Hello World!\n");
+    output(x1);
 }

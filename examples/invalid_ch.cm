@@ -3,5 +3,5 @@
 void main(void)
 {
     int x@test = 99; /* @ is an illegal character */ 
-    output("%d\n", x@test);
+    output(x@test);
 }
