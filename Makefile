@@ -1,6 +1,9 @@
 # Name of the project
 PROJ_NAME=cminus
 
+# Project element
+LEX=_lexical_analyzer
+
 # Base directories
 BUILD_DIR=./build/
 SRC_DIR=./src/
@@ -26,15 +29,17 @@ LA=flex
 FLAGS= -lfl
      
 # Compilation and linking
-all: build_dir
+all: lexical	
+
+lexical: build_dir
 	$(LA) $(FLEX_SOURCE)
 	@ mv $(FLEX_RESULT) $(SRC_DIR)
 	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT)
 	@ mv *.o -t $(BUILD_DIR)
-	$(CC) -o $(PROJ_NAME) $(BUILD_DIR)*.o $(FLAGS)  
- 
+	$(CC) -o $(PROJ_NAME)$(LEX) $(BUILD_DIR)*.o $(FLAGS)  
+
 clean:
-	rm -rf $(BUILD_DIR) $(SRC_DIR)$(FLEX_RESULT) $(PROJ_NAME)
+	rm -rf $(BUILD_DIR) $(SRC_DIR)$(FLEX_RESULT) $(PROJ_NAME)_*
 
 build_dir:
 	@ mkdir -p build

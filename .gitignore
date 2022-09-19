@@ -56,4 +56,5 @@ lex.yy.c
 
 # Build files
 build/*
-cminus
+cminus_*
+cm_*
