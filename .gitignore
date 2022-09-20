@@ -53,3 +53,8 @@ dkms.conf
 
 # Flex lex.yy.c file
 lex.yy.c
+
+# Build files
+build/*
+cminus_*
+cm_*
