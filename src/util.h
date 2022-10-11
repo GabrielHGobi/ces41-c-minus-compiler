@@ -16,6 +16,9 @@
  */
 void printToken( TokenType, const char* );
 
+/* Procedure printLine prints a full line
+ * of the source code, with its number to the listing file
+ */
 void printLine(FILE* redundant_source);
 
 /* Function newStmtNode creates a new statement

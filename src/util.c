@@ -62,10 +62,13 @@ void printToken( TokenType token, const char* tokenString )
   }
 }
 
+/* Procedure printLine prints a full line
+ * of the source code, with its number to the listing file
+ */
 void printLine(FILE* redundant_source){
   char line[1024];
   fgets(line, 1024, redundant_source);
-  printf("%d: %-1s",lineno, line);
+  fprintf(listing, "%d: %-1s",lineno, line);
 }
 
 /* Function newStmtNode creates a new statement
