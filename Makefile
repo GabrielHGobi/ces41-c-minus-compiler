@@ -43,7 +43,7 @@ all: parser
 scanner: build_dir
 	$(LA) $(FLEX_SOURCE)
 	@ mv $(FLEX_RESULT) $(SRC_DIR)
-	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT)
+	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT) -DNO_PARSE=TRUE
 	@ mv *.o -t $(BUILD_DIR)
 	$(CC) -o $(PROJ_NAME)$(LEX) $(BUILD_DIR)*.o $(FLAGS)
 

@@ -11,7 +11,9 @@
 #include "globals.h"
 
 /* set NO_PARSE to TRUE to get a scanner-only compiler */
-#define NO_PARSE FALSE
+#ifndef NO_PARSE
+    #define NO_PARSE FALSE
+#endif
 
 #include "util.h"
 #if NO_PARSE
