@@ -9,8 +9,16 @@
 /****************************************************/
 
 #include "globals.h"
+
+/* set NO_PARSE to TRUE to get a scanner-only compiler */
+#define NO_PARSE FALSE
+
 #include "util.h"
+#if NO_PARSE
 #include "scan.h"
+#else
+#include "parse.h"
+#endif
 
 /* allocate global variables */
 int lineno = 0;
@@ -22,11 +30,13 @@ FILE * code;
 /* allocate and set tracing flags */
 int EchoSource = TRUE;
 int TraceScan = TRUE;
+int TraceParse = TRUE;
 
 int Error = FALSE;
 
 int main( int argc, char * argv[] )
 {   
+    TreeNode * syntaxTree;
     char pgm[120]; /* source code file name */
     if (argc != 2)
     { fprintf(stderr,"usage: %s <filename>\n",argv[0]);
@@ -43,8 +53,15 @@ int main( int argc, char * argv[] )
     }
     listing = stdout; /* send listing to screen */
     fprintf(listing,"\nC- COMPILATION: %s\n",pgm);
-
+  #if NO_PARSE
     while (getToken()!=ENDFILE);
-
+  #else
+    syntaxTree = parse();
+    if (TraceParse) {
+        fprintf(listing,"\nSyntax tree:\n");
+        printTree(syntaxTree);
+    }
+  #endif
+    fclose(source);
     return 0;
 }
