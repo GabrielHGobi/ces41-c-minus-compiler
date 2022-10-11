@@ -54,7 +54,14 @@ dkms.conf
 # Flex lex.yy.c file
 lex.yy.c
 
+# Bison .tab.c and .tab.h files
+*.tab.c
+*.tab.h
+
 # Build files
 build/*
 cminus_*
 cm_*
+
+# IDE settings files
+.vscode
