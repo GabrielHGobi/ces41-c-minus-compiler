@@ -14,6 +14,7 @@
 #include "scan.h"
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
+char idString[MAXTOKENLEN+1];
 extern int yylex(void);
 extern FILE* redundant_source;
 %}
@@ -53,7 +54,8 @@ whitespace  [ \r\t]+
 "{"             {return LBRACE;}
 "}"             {return RBRACE;}
 {number}        {return NUM;}
-{identifier}    {return ID;}
+{identifier}    { strncpy(idString,yytext,MAXTOKENLEN);
+                  return ID;}
 {newline}       {lineno++; printLine(redundant_source);}
 {whitespace}    {/* skip whitespace */}
 "/*"            { int state = 1;
