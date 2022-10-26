@@ -103,8 +103,22 @@ TreeNode * newExpNode(ExpKind kind)
     t->nodekind = ExpK;
     t->kind.exp = kind;
     t->lineno = lineno;
-    t->type = Void;
   }
+  return t;
+}
+
+/* Function copyString allocates and makes a new
+ * copy of an existing string
+ */
+char * copyString(char * s)
+{ int n;
+  char * t;
+  if (s==NULL) return NULL;
+  n = strlen(s)+1;
+  t = malloc(n);
+  if (t==NULL)
+    fprintf(listing,"Out of memory error at line %d\n",lineno);
+  else strcpy(t,s);
   return t;
 }
 
@@ -137,17 +151,14 @@ void printTree( TreeNode * tree )
         case IfK:
           fprintf(listing,"If\n");
           break;
-        case RepeatK:
-          fprintf(listing,"Repeat\n");
+        case WhileK:
+          fprintf(listing,"While\n");
           break;
         case AssignK:
-          fprintf(listing,"Assign to: %s\n",tree->attr.name);
+          fprintf(listing,"Assign:\n");
           break;
-        case ReadK:
-          fprintf(listing,"Read: %s\n",tree->attr.name);
-          break;
-        case WriteK:
-          fprintf(listing,"Write\n");
+        case ReturnK:
+          fprintf(listing,"Return\n");
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
@@ -164,7 +175,18 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Const: %d\n",tree->attr.val);
           break;
         case IdK:
-          fprintf(listing,"Id: %s\n",tree->attr.name);
+          if (tree->type.name != NULL) {
+            fprintf(listing, "Type: %s\n", tree->type.name);
+            INDENT;
+            printSpaces();
+            fprintf(listing,"Id: %s\n",tree->attr.id.name);
+            if (tree->child[0] == NULL && tree->child[1] == NULL) UNINDENT;
+          }
+          else 
+            fprintf(listing,"Id: %s\n",tree->attr.id.name);
+          break;
+        case ActivK:
+          fprintf(listing,"Activation: %s\n",tree->attr.id.name);
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");

@@ -31,6 +31,11 @@ TreeNode * newStmtNode(StmtKind);
  */
 TreeNode * newExpNode(ExpKind);
 
+/* Function copyString allocates and makes a new
+ * copy of an existing string
+ */
+char * copyString( char * );
+
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
  */
