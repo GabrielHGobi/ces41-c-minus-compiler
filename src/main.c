@@ -14,12 +14,19 @@
 #ifndef NO_PARSE
     #define NO_PARSE FALSE
 #endif
+/* set NO_ANALYZE to TRUE to get a parser-only compiler */
+#ifndef NO_ANALYZE
+    #define NO_ANALYZE FALSE
+#endif
 
 #include "util.h"
 #if NO_PARSE
 #include "scan.h"
 #else
 #include "parse.h"
+#if !NO_ANALYZE
+#include "analyze.h"
+#endif
 #endif
 
 /* allocate global variables */
@@ -33,6 +40,7 @@ FILE * code;
 int EchoSource = TRUE;
 int TraceScan = TRUE;
 int TraceParse = TRUE;
+int TraceAnalyze = TRUE;
 
 int Error = FALSE;
 
@@ -63,6 +71,15 @@ int main( int argc, char * argv[] )
         fprintf(listing,"\nSyntax tree:\n");
         printTree(syntaxTree);
     }
+  #if !NO_ANALYZE
+  if (! Error)
+  { if (TraceAnalyze) fprintf(listing,"\nBuilding Symbol Table...\n");
+    buildSymtab(syntaxTree);
+    if (TraceAnalyze) fprintf(listing,"\nChecking Types...\n");
+    typeCheck(syntaxTree);
+    if (TraceAnalyze) fprintf(listing,"\nType Checking Finished\n");
+  }
+  #endif
   #endif
     fclose(source);
     return 0;

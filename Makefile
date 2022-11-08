@@ -4,22 +4,28 @@ PROJ_NAME=cminus
 # Project element
 LEX=_scanner
 SYNT=_parser
+ANALYZ=_analyzer
 
 # Base directories
 BUILD_DIR=./build/
 SRC_DIR=./src/
 
+# Flex and Yacc/Bison files
+FLEX_FILE=$(wildcard $(SRC_DIR)*.l)
+FLEX_C_RESULT=lex.yy.c
+BISON_FILE=$(wildcard $(SRC_DIR)*.y)
+BISON_C_RESULT=cminus.tab.c
+BISON_H_RESULT=cminus.tab.h
+
 # .c files
 C_SOURCE=$(wildcard $(SRC_DIR)*.c)
- 
-# flex files
-FLEX_SOURCE=$(wildcard $(SRC_DIR)*.l)
-FLEX_RESULT=lex.yy.c
+COMMON_C_SOURCE=$(SRC_DIR)main.c $(SRC_DIR)util.c
+FLEX_C_SOURCE=$(SRC_DIR)lex.yy.c
+BISON_C_SOURCE=$(SRC_DIR)cminus.tab.c
+ANALYZER_C_SOURCE=$(SRC_DIR)symtab.c $(SRC_DIR)analyze.c
 
-# bison files
-BISON_SOURCE=$(wildcard $(SRC_DIR)*.y)
-BISON_RESULT_C=cminus.tab.c
-BISON_RESULT_H=cminus.tab.h
+# .h files
+BISON_H=$(SRC_DIR)cminus.tab.h
 
 # Object files
 OBJ_FILE=$(wildcard *.o)
@@ -38,27 +44,37 @@ SP=bison
 FLAGS= -lfl
      
 # Compilation and linking
-all: parser	
+all: analyzer	
 
 scanner: build_dir
-	$(LA) $(FLEX_SOURCE)
-	@ mv $(FLEX_RESULT) $(SRC_DIR)
-	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT) -DNO_PARSE=TRUE
+	$(LA) $(FLEX_FILE)
+	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
+	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) -DNO_PARSE=TRUE
 	@ mv *.o -t $(BUILD_DIR)
 	$(CC) -o $(PROJ_NAME)$(LEX) $(BUILD_DIR)*.o $(FLAGS)
 
 parser: build_dir
-	$(LA) $(FLEX_SOURCE)
-	$(SP) -d $(BISON_SOURCE)
-	@ mv $(FLEX_RESULT) $(SRC_DIR)
-	@ mv $(BISON_RESULT_C) $(SRC_DIR)
-	@ mv $(BISON_RESULT_H) $(SRC_DIR)
-	$(CC) -c $(C_SOURCE) $(SRC_DIR)$(FLEX_RESULT) $(SRC_DIR)$(BISON_RESULT_C) $(SRC_DIR)$(BISON_RESULT_H)
+	$(LA) $(FLEX_FILE)
+	$(SP) -d $(BISON_FILE)
+	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_H_RESULT) $(SRC_DIR)
+	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) -DNO_ANALYZE=TRUE
 	@ mv *.o -t $(BUILD_DIR)
 	$(CC) -o $(PROJ_NAME)$(SYNT) $(BUILD_DIR)*.o $(FLAGS)	
 
+analyzer: build_dir
+	$(LA) $(FLEX_FILE)
+	$(SP) -d $(BISON_FILE)
+	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_H_RESULT) $(SRC_DIR)
+	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(ANALYZER_C_SOURCE)
+	@ mv *.o -t $(BUILD_DIR)
+	$(CC) -o $(PROJ_NAME)$(ANALYZ) $(BUILD_DIR)*.o $(FLAGS)	
+
 clean:
-	rm -rf $(BUILD_DIR) $(SRC_DIR)$(FLEX_RESULT) $(PROJ_NAME)_*
+	rm -rf $(BUILD_DIR) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(PROJ_NAME)_*
 
 build_dir:
 	@ mkdir -p build

@@ -113,6 +113,11 @@ extern int TraceScan;
  */
 extern int TraceParse;
 
+/* TraceAnalyze = TRUE causes symbol table inserts
+ * and lookups to be reported to the listing file
+ */
+extern int TraceAnalyze;
+
 /* Error = TRUE prevents further passes if an error occurs */
 extern int Error;
 
