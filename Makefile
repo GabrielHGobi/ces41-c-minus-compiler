@@ -55,7 +55,7 @@ scanner: build_dir
 
 parser: build_dir
 	$(LA) $(FLEX_FILE)
-	$(SP) -d $(BISON_FILE)
+	$(SP) -d $(BISON_FILE) -Wnone
 	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
 	@ mv $(BISON_C_RESULT) $(SRC_DIR)
 	@ mv $(BISON_H_RESULT) $(SRC_DIR)
