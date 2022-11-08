@@ -113,21 +113,28 @@ static void typeError(TreeNode * t, char * message)
  * type checking at a single tree node
  */
 static void checkNode(TreeNode * t)
-{ /* switch (t->nodekind)
+{  switch (t->nodekind)
   { case ExpK:
       switch (t->kind.exp)
       { case OpK:
           if ((t->child[0]->type != Integer) ||
               (t->child[1]->type != Integer))
             typeError(t,"Op applied to non-integer");
-          if ((t->attr.op == EQ) || (t->attr.op == LT))
+          if ((t->attr.op == EQ) || (t->attr.op == LT) || (t->attr.op == LTEQ) || 
+              (t->attr.op == GT) || (t->attr.op == GTEQ) || (t->attr.op == DIF))
             t->type = Boolean;
           else
             t->type = Integer;
           break;
         case ConstK:
-        case IdK:
           t->type = Integer;
+          break;
+        case IdK:
+          if (t->attr.id.type == Var || t->attr.id.type == Array)
+            t->type = Integer;
+          else if (t->attr.id.type == Fun){
+            // BucketList l = hashTable[i];
+          }
           break;
         default:
           break;
@@ -136,21 +143,21 @@ static void checkNode(TreeNode * t)
     case StmtK:
       switch (t->kind.stmt)
       { case IfK:
-          if (t->child[0]->type == Integer)
+          if (t->child[0]->type != Boolean)
             typeError(t->child[0],"if test is not Boolean");
           break;
         case AssignK:
-          if (t->child[0]->type != Integer)
-            typeError(t->child[0],"assignment of non-integer value");
+          if (t->child[1]->type != Integer)
+            typeError(t->child[1],"assignment of non-integer value");
           break;
-        case WriteK:
-          if (t->child[0]->type != Integer)
-            typeError(t->child[0],"write of non-integer value");
+        case WhileK:
+          if (t->child[0]->type != Boolean)
+            typeError(t->child[0],"while test is not Boolean");
           break;
-        case RepeatK:
-          if (t->child[1]->type == Integer)
-            typeError(t->child[1],"repeat test is not Boolean");
-          break;
+        // case ReturnK:
+        //   if (t->child[1]->type == Integer)
+        //     typeError(t->child[1],"repeat test is not Boolean");
+        //   break;
         default:
           break;
       }
@@ -158,7 +165,7 @@ static void checkNode(TreeNode * t)
     default:
       break;
 
-  } */
+  } 
 }
 
 /* Procedure typeCheck performs type checking 
