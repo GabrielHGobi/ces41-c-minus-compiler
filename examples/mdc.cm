@@ -14,12 +14,3 @@ void main(void)
     y = input();
     output(gcd(x,y));
 }
-
-
-a(){
-     while() {
-        while(){x = 2}
-        while(){x = 4}
-    }
-     while() {x = 4}
-}
