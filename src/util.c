@@ -175,8 +175,8 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Const: %d\n",tree->attr.val);
           break;
         case IdK:
-          if (tree->type.name != NULL) {
-            fprintf(listing, "Type: %s\n", tree->type.name);
+          if (tree->type != 0) {
+            fprintf(listing, "Type: %s\n", expTypeNames[tree->type]);
             INDENT;
             printSpaces();
             fprintf(listing,"Id: %s\n",tree->attr.id.name);

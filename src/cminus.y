@@ -1,6 +1,6 @@
 /****************************************************/
 /* File: cminus.y                                   */
-/* The TINY Yacc/Bison specification file           */
+/* The C- Yacc/Bison specification file             */
 /* Project for CES41: Compiladores                  */
 /* Prof. Ana Carolina Lorena                        */
 /* Code writted by Gabriel Gobi                     */
@@ -78,11 +78,9 @@ var_stmt    : spec_type ID
             ;
 // 5. tipo-especificador → int | void
 spec_type   : INT { $$ = newExpNode(IdK);
-                    $$->type.exp = Integer;
-                    $$->type.name = copyString(tokenString); }
+                    $$->type = Integer; }
             | VOID { $$ = newExpNode(IdK);
-                     $$->type.exp = Void;
-                     $$->type.name = copyString(tokenString); }
+                     $$->type = Void; }
             ;
 // 6. fun-declaração → tipo-especificador ID ( params ) composto-decl
 func_stmt   : spec_type ID
@@ -327,7 +325,7 @@ int yyerror(char * message)
 }
 
 /* yylex calls getToken to make Yacc/Bison output
- * compatible with ealier versions of the TINY scanner
+ * compatible with ealier versions of the C- scanner
  */
 static int yylex(void)
 { return getToken(); }

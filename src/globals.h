@@ -68,8 +68,10 @@ typedef enum {IfK,WhileK,AssignK,ReturnK} StmtKind;
 typedef enum {OpK,ConstK,IdK,ActivK} ExpKind;
 
 /* ExpType and IdType is used for type checking */
-typedef enum {Void,Integer,Boolean} ExpType;
-typedef enum {Var, Fun, Array} IdType;
+typedef enum {Void = 1,Integer,Boolean} ExpType;
+static const char* expTypeNames[4] = {"dummy", "void", "int", "bool"};
+typedef enum {Var = 1, Fun, Array} IdType;
+static const char* idTypeNames[4] = {"dummy", "var", "fun", "array"};
 
 #define MAXCHILDREN 3
 
@@ -86,7 +88,7 @@ typedef struct treeNode
               IdType type;
              } id;
            } attr;
-     struct { ExpType exp; char * name; } type;
+     ExpType type;
    } TreeNode;
 
 /**************************************************/
