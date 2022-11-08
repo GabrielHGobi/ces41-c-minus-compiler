@@ -80,22 +80,30 @@ void st_insert( char * name, char * scopeName, int scopeLevel,
     l->idType = idType;
     l->dataType = dataType;
     l->scope = scopeName;
-    l->lines = (LineList) malloc(sizeof(struct LineListRec));
-    l->lines->lineno = lineno;
+    if (lineno != -1) {
+      l->lines = (LineList) malloc(sizeof(struct LineListRec));
+      l->lines->lineno = lineno;
+      l->lines->next = NULL;
+    }
     l->memloc = loc;
-    l->lines->next = NULL;
     l->next = hashTable[h];
     hashTable[h] = l; }
   else /* found in table, so just add line number */
-  { LineList t = l->lines;
-    while (t->next != NULL) {
-        if (t->lineno == lineno) return; /* already appeared in that line*/
-        t = t->next;
+  { if (l->lines == NULL) {
+      l->lines = (LineList) malloc(sizeof(struct LineListRec));
+      l->lines->lineno = lineno;
+      l->lines->next = NULL;
+    } else {
+      LineList t = l->lines;
+      while (t->next != NULL) {
+          if (t->lineno == lineno) return; /* already appeared in that line*/
+          t = t->next;
+      }
+      if (t->lineno == lineno) return; /* already appeared in that line*/
+      t->next = (LineList) malloc(sizeof(struct LineListRec));
+      t->next->lineno = lineno;
+      t->next->next = NULL;
     }
-    if (t->lineno == lineno) return; /* already appeared in that line*/
-    t->next = (LineList) malloc(sizeof(struct LineListRec));
-    t->next->lineno = lineno;
-    t->next->next = NULL;
   }
 } /* st_insert */
 

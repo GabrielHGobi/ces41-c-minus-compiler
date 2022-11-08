@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "symtab.h"
 #include "analyze.h"
+#include "util.h"
 
 /* counter for variable memory locations */
 static int location = 0;
@@ -85,7 +86,18 @@ static void insertNode( TreeNode * t)
  * table by preorder traversal of the syntax tree
  */
 void buildSymtab(TreeNode * syntaxTree)
-{ traverse(syntaxTree,insertNode,nullProc);
+{ /* Inserting manually pre-built functions input and output */
+  TreeNode * inputOutputFunNode = newExpNode(IdK);
+  inputOutputFunNode->attr.id.type = Fun;
+  inputOutputFunNode->lineno = -1;
+  inputOutputFunNode->attr.id.name = copyString("input");
+  inputOutputFunNode->type = Integer;
+  insertNode(inputOutputFunNode);
+  inputOutputFunNode->attr.id.name = copyString("output");
+  inputOutputFunNode->type = Void;
+  insertNode(inputOutputFunNode);
+  /* Traversomg the sintax tree */
+  traverse(syntaxTree,insertNode,nullProc);
   if (TraceAnalyze)
   { fprintf(listing,"\nSymbol table:\n\n");
     printSymTab(listing);
