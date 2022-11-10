@@ -64,11 +64,14 @@ extern int lineno; /* source line number for listing */
 /**************************************************/
 
 typedef enum {StmtK,ExpK} NodeKind;
-typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK} StmtKind;
-typedef enum {OpK,ConstK,IdK} ExpKind;
+typedef enum {IfK,WhileK,AssignK,ReturnK} StmtKind;
+typedef enum {OpK,ConstK,IdK,ActivK} ExpKind;
 
-/* ExpType is used for type checking */
-typedef enum {Void,Integer,Boolean} ExpType;
+/* ExpType and IdType is used for type checking */
+typedef enum {Void = 1,Integer,Boolean} ExpType;
+static const char* expTypeNames[4] = {"dummy", "void", "int", "bool"};
+typedef enum {Var = 1, Fun, Array} IdType;
+static const char* idTypeNames[4] = {"dummy", "var", "fun", "array"};
 
 #define MAXCHILDREN 3
 
@@ -80,8 +83,12 @@ typedef struct treeNode
      union { StmtKind stmt; ExpKind exp;} kind;
      union { TokenType op;
              int val;
-             char * name; } attr;
-     ExpType type; /* for type checking of exps */
+             struct { 
+              char * name;
+              IdType type;
+             } id;
+           } attr;
+     ExpType type;
    } TreeNode;
 
 /**************************************************/
@@ -105,6 +112,11 @@ extern int TraceScan;
  * (using indents for children)
  */
 extern int TraceParse;
+
+/* TraceAnalyze = TRUE causes symbol table inserts
+ * and lookups to be reported to the listing file
+ */
+extern int TraceAnalyze;
 
 /* Error = TRUE prevents further passes if an error occurs */
 extern int Error;

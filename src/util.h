@@ -16,6 +16,9 @@
  */
 void printToken( TokenType, const char* );
 
+/* Procedure printLine prints a full line
+ * of the source code, with its number to the listing file
+ */
 void printLine(FILE* redundant_source);
 
 /* Function newStmtNode creates a new statement
@@ -27,6 +30,11 @@ TreeNode * newStmtNode(StmtKind);
  * node for syntax tree construction
  */
 TreeNode * newExpNode(ExpKind);
+
+/* Function copyString allocates and makes a new
+ * copy of an existing string
+ */
+char * copyString( char * );
 
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
