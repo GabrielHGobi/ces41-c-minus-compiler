@@ -13,9 +13,10 @@ Prof. Ana Carolina Lorena
 
 ### Dependencies
 
-Install `flex`. On Debain-based Linux distributions, you can run the following command:
+Install `flex` and `bison`. On Debain-based Linux distributions, you can run the following commands:
 ```
 sudo apt-get install flex
+sudo apt-get install bison
 ```
 
 ### Directory structure
@@ -23,9 +24,16 @@ sudo apt-get install flex
 ```
 ├── src
 │   ├── cminus.l
+|   ├── cminus.y
 │   ├── globals.h
 │   ├── main.c
 │   ├── scan.h
+│   ├── parse.c
+│   ├── parse.h
+│   ├── symtab.c
+│   ├── symtab.h
+│   ├── analyze.c
+│   ├── analyze.h
 │   ├── util.c
 │   └── util.h
 ├── examples
@@ -196,4 +204,58 @@ C- COMPILATION: examples/invalid_ch.cm
         6: ;
 7: }    7: }
         7: EOF
+```
+
+### Syntactic analyzer - _parser_
+
+In order to build a syntactic analyzer for C- language we used the support of the `bison` (YACC) tool. Moreover, this implementation depends on the already explained `flex` scanner (the parser will call scanner function while processing the input).
+
+The core of the syntactic analysis is found in `cminus.y` file. In this file, we have the C- grammar (as provided in the documentation) to generate the syntactic tree. First, we define the tokens that will be used, in order of precedence (the last will have more precedence). Then, we define the grammar rules with the previous tokens. In the right side of the rule, we also do the necessary processing to build the syntactic tree, with our defined structure (found in `globals.h`).
+
+In each node of the tree, we store the node kind (statement or expression). Furthermore, we store the node sub-kind. For statement nodes, it can be and if, while, assingment or return kind. For expression nodes, it can be operator, constant, identifier or function activation kind. If it is an expression node, we also store the type: void, int or boolean. The node stores the lexical data (token type, lexeme etc) too. Finnally, we have the line number and pointers to children and sibling nodes.
+
+That said, the tree is built with the following conventions. First of all, as we already said, we define node type, so we don't have type nodes for identifiers. For function nodes, the first child is function argument list (as siblings nodes), and the second child is the function body, in case of function definition. Expression subtrees are defined as usual, with variables or constants as leaf nodes, and operator as internal nodes, until the root. For array variable nodes, the first child is the array length (in case of definition) or the array index (in case of indexing). For if-else statements, the first child is the condition expression, the second and third children are the if and else bodies respectively (in case of no else statement, the last child is null). While statements are analogous to if statements. Return statements have their child as the return expression (possibly none). Assignment statements have the first child as the variable node and the second as the expression node. Finnally, all sequential program statements (same scope) are siblings in the tree.
+
+The generated tree is printed to standart output (`stdout`), in form of indented text lines, when executing the parser. Next, we provide the parsing result for mdc example program, and for the same program but with a missing semicolon.
+
+```
+Syntax tree:
+  Type: int
+    Id: gcd
+      Type: int
+        Id: u
+      Type: int
+        Id: v
+      If
+        Op: ==
+          Id: v
+          Const: 0
+        Return
+          Id: u
+        Return
+          Activation: gcd
+            Id: v
+            Op: -
+              Id: u
+              Op: *
+                Op: /
+                  Id: u
+                  Id: v
+                Id: v
+    Type: void
+      Id: main
+        Type: int
+          Id: x
+        Type: int
+          Id: y
+        Assign:
+          Id: x
+          Activation: input
+        Assign:
+          Id: y
+          Activation: input
+        Activation: output
+          Activation: gcd
+            Id: x
+            Id: y
 ```
