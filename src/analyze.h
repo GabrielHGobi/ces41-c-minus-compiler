@@ -21,4 +21,9 @@ void buildSymtab(TreeNode *);
  */
 void typeCheck(TreeNode *);
 
+/* Procedure mainCheck just search the symbol
+ * table looking for main declaration
+ */
+void mainCheck();
+
 #endif

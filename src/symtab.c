@@ -35,44 +35,20 @@ static int hash ( char * key )
   return temp;
 }
 
-/* the list of line numbers of the source 
- * code in which a variable is referenced
- */
-typedef struct LineListRec
-   { int lineno;
-     struct LineListRec * next;
-   } * LineList;
-
-/* The record in the bucket lists for
- * each variable, including name, 
- * assigned memory location, scope,
- * ID type, data type and the list
- * of line numbers in which it
- * appears in the source code
- */
-typedef struct BucketListRec
-   { char * name;
-     LineList lines;
-     int memloc ; /* memory location for variable */
-     char * scope;
-     IdType idType;
-     ExpType dataType;
-     struct BucketListRec * next;
-   } * BucketList;
-
 /* the hash table */
 static BucketList hashTable[SIZE];
 
 /* Procedure st_insert inserts line numbers and
  * memory locations into the symbol table
- * loc = memory location is inserted only the
- * first time, otherwise ignored
+ * It is inserted only the first time, otherwise ignored
  */
-void st_insert( char * name, char * scopeName, int scopeLevel, 
-    IdType idType, ExpType dataType, int lineno, int loc )
+void st_insert( char * name, char * scopeName,
+    IdType idType, ExpType dataType, int lineno )
 { int h = hash(name);
   BucketList l =  hashTable[h];
-  while ((l != NULL) && (strcmp(name,l->name) != 0))
+  while ((l != NULL) && ((strcmp(name,l->name) != 0) 
+                     || ((strcmp(scopeName,l->scope) != 0) 
+                         && (strcmp(l->scope, "") != 0))))
     l = l->next;
   if (l == NULL) /* variable not yet in table */
   { l = (BucketList) malloc(sizeof(struct BucketListRec));
@@ -85,7 +61,6 @@ void st_insert( char * name, char * scopeName, int scopeLevel,
       l->lines->lineno = lineno;
       l->lines->next = NULL;
     }
-    l->memloc = loc;
     l->next = hashTable[h];
     hashTable[h] = l; }
   else /* found in table, so just add line number */
@@ -107,16 +82,15 @@ void st_insert( char * name, char * scopeName, int scopeLevel,
   }
 } /* st_insert */
 
-/* Function st_lookup returns the memory 
- * location of a variable or -1 if not found
+/* Function st_lookup returns a pointer to the
+ * symbol entry in the table or NULL if not found
  */
-int st_lookup ( char * name )
+BucketList st_lookup ( char * name )
 { int h = hash(name);
   BucketList l =  hashTable[h];
   while ((l != NULL) && (strcmp(name,l->name) != 0))
     l = l->next;
-  if (l == NULL) return -1;
-  else return l->memloc;
+  return l;
 }
 
 /* Procedure printSymTab prints a formatted 
@@ -125,16 +99,15 @@ int st_lookup ( char * name )
  */
 void printSymTab(FILE * listing)
 { int i;
-  fprintf(listing,"Variable Name  Location  Scope  ID Type  Data Type  Line Numbers\n");
-  fprintf(listing,"-------------  --------  -----  -------  ---------  ------------\n");
+  fprintf(listing,"Variable Name  Scope     ID Type  Data Type  Line Numbers             \n");
+  fprintf(listing,"-------------  --------  -------  ---------  -------------------------\n");
   for (i=0;i<SIZE;++i)
   { if (hashTable[i] != NULL)
     { BucketList l = hashTable[i];
       while (l != NULL)
       { LineList t = l->lines;
         fprintf(listing,"%-14s ",l->name);
-        fprintf(listing,"%-8d  ",l->memloc);
-        fprintf(listing,"%-5s  ",l->scope);
+        fprintf(listing,"%-8s  ",l->scope);
         fprintf(listing,"%-7s  ",idTypeNames[l->idType]);
         fprintf(listing,"%-10s ",expTypeNames[l->dataType]);
         while (t != NULL)

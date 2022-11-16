@@ -72,12 +72,15 @@ int main( int argc, char * argv[] )
         printTree(syntaxTree);
     }
   #if !NO_ANALYZE
-  if (! Error)
-  { if (TraceAnalyze) fprintf(listing,"\nBuilding Symbol Table...\n");
+  if (! Error) {
+    if (TraceAnalyze) fprintf(listing,"\nBuilding Symbol Table...\n");
     buildSymtab(syntaxTree);
-    if (TraceAnalyze) fprintf(listing,"\nChecking Types...\n");
+    if (TraceAnalyze) fprintf(listing,"\nChecking for main...\n");
+    mainCheck();
+  } if (! Error) {
+    if (TraceAnalyze) fprintf(listing,"\nChecking types...\n");
     typeCheck(syntaxTree);
-    if (TraceAnalyze) fprintf(listing,"\nType Checking Finished\n");
+    if (TraceAnalyze) fprintf(listing,"\nSemantic analysis finished\n");
   }
   #endif
   #endif
