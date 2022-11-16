@@ -216,9 +216,16 @@ In each node of the tree, we store the node kind (statement or expression). Furt
 
 That said, the tree is built with the following conventions. First of all, as we already said, we define node type, so we don't have type nodes for identifiers. For function nodes, the first child is function argument list (as siblings nodes), and the second child is the function body, in case of function definition. Expression subtrees are defined as usual, with variables or constants as leaf nodes, and operator as internal nodes, until the root. For array variable nodes, the first child is the array length (in case of definition) or the array index (in case of indexing). For if-else statements, the first child is the condition expression, the second and third children are the if and else bodies respectively (in case of no else statement, the last child is null). While statements are analogous to if statements. Return statements have their child as the return expression (possibly none). Assignment statements have the first child as the variable node and the second as the expression node. Finnally, all sequential program statements (same scope) are siblings in the tree.
 
-The generated tree is printed to standart output (`stdout`), in form of indented text lines, when executing the parser. Next, we provide the parsing result for mdc example program, and for the same program but with a missing semicolon.
+The generated tree is printed to standart output (`stdout`), in form of indented text lines, when executing the parser. Next, we provide the parsing result for mdc example program.
+
+***
+`examples/mdc.cm`
 
 ```
+C- COMPILATION: examples/mdc.cm
+
+(...)
+
 Syntax tree:
   Type: int
     Id: gcd
@@ -258,4 +265,37 @@ Syntax tree:
           Activation: gcd
             Id: x
             Id: y
+```
+
+### Syntactic errors handling
+
+Next, we provide some results for a set of possible syntactic errors that can occur in the context of compiling C- programs.
+
+***
+Missing key
+
+`examples/missing_key.cm`
+
+```
+C- COMPILATION: examples/missing_key.cm
+
+(...)
+
+15:     output(gcd(x,y));
+        15: ID, name= output
+        15: (
+        15: ID, name= gcd
+        15: (
+        15: ID, name= x
+        15: ,
+        15: ID, name= y
+        15: )
+        15: )
+        15: ;
+16:     output(gcd(x,y));
+        16: EOF
+Syntax error at line 16: syntax error
+Current token: EOF
+
+Syntax tree:
 ```
