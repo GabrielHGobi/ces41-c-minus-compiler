@@ -160,6 +160,17 @@ void printTree( TreeNode * tree )
         case ReturnK:
           fprintf(listing,"Return\n");
           break;
+        case DeclK:
+          if (tree->type != 0) {
+            fprintf(listing, "Type: %s\n", expTypeNames[tree->type]);
+            INDENT;
+            printSpaces();
+            fprintf(listing,"Id: %s\n",tree->attr.id.name);
+            if (tree->child[0] == NULL && tree->child[1] == NULL) UNINDENT;
+          }
+          else 
+            fprintf(listing,"Id: %s\n",tree->attr.id.name);
+          break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
           break;
@@ -196,6 +207,10 @@ void printTree( TreeNode * tree )
     else fprintf(listing,"Unknown node kind\n");
     for (i=0;i<MAXCHILDREN;i++)
          printTree(tree->child[i]);
+    if (tree->sibling != NULL) {
+      if (tree->nodekind == StmtK)
+        if(tree->kind.stmt == DeclK && tree->attr.id.type == Fun) UNINDENT;
+    }
     tree = tree->sibling;
   }
   UNINDENT;
