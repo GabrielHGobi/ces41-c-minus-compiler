@@ -249,31 +249,29 @@ Syntax tree:
                   Id: u
                   Id: v
                 Id: v
-    Type: void
-      Id: main
-        Type: int
+  Type: void
+    Id: main
+      Type: int
+        Id: x
+      Type: int
+        Id: y
+      Assign:
+        Id: x
+        Activation: input
+      Assign:
+        Id: y
+        Activation: input
+      Activation: output
+        Activation: gcd
           Id: x
-        Type: int
           Id: y
-        Assign:
-          Id: x
-          Activation: input
-        Assign:
-          Id: y
-          Activation: input
-        Activation: output
-          Activation: gcd
-            Id: x
-            Id: y
 ```
 
 ### Syntactic errors handling
 
-Next, we provide some results for a set of possible syntactic errors that can occur in the context of compiling C- programs.
+Next, we provide some results for a set of possible syntactic errors that can occur in the context of compiling C- programs. All the following examples are based on previous correct mdc.cm program for comparative purpose.
 
 ***
-Missing key
-
 `examples/missing_key.cm`
 
 ```
@@ -298,4 +296,76 @@ Syntax error at line 16: syntax error
 Current token: EOF
 
 Syntax tree:
+```
+
+***
+`examples/missing_comma.cm`
+
+```
+C- COMPILATION: examples/missing_comma.cm
+1: /* Um programa para calcular mdc 
+2:    Segundo o algoritmo de Euclides*/
+3: int gcd (int u int v)
+        3: reserved word: int
+        3: ID, name= gcd
+        3: (
+        3: reserved word: int
+        3: ID, name= u
+        3: reserved word: int
+Syntax error at line 3: syntax error
+Current token: reserved word: int
+
+Syntax tree:
+```
+
+***
+`examples/missing_semicolon.cm`
+
+```
+C- COMPILATION: examples/missing_semicolon.cm
+
+(...)
+
+9: void main(void)
+        9: reserved word: void
+        9: ID, name= main
+        9: (
+        9: reserved word: void
+        9: )
+10: {
+        10: {
+11:     int x
+        11: reserved word: int
+        11: ID, name= x
+12:     int y;
+        12: reserved word: int
+Syntax error at line 12: syntax error
+Current token: reserved word: int
+
+Syntax tree:
+```
+
+***
+`examples/missing_parentheses.cm`
+
+```
+C- COMPILATION: examples/missing_parentheses.cm
+
+1: /* Um programa para calcular mdc 
+2:    Segundo o algoritmo de Euclides*/
+3: int gcd (int u, int v
+        3: reserved word: int
+        3: ID, name= gcd
+        3: (
+        3: reserved word: int
+        3: ID, name= u
+        3: ,
+        3: reserved word: int
+        3: ID, name= v
+4: {
+        4: {
+Syntax error at line 4: syntax error
+Current token: {
+
+(...)
 ```
