@@ -35,6 +35,7 @@ static void genStmt( TreeNode * tree) {
          
          case DeclK :
             if (tree->attr.id.type == Fun) {
+                emitLabel(tree->attr.id.name, "subroutine decl");
                 p1 = tree->child[0];
                 p2 = tree->child[1];
                 /* do nothing for p1 */
@@ -42,13 +43,12 @@ static void genStmt( TreeNode * tree) {
             } 
             break; /* decl_k */
 
-//       case IfK :
-//          if (TraceCode) emitComment("-> if") ;
-//          p1 = tree->child[0] ;
-//          p2 = tree->child[1] ;
-//          p3 = tree->child[2] ;
-//          /* generate code for test expression */
-//          cGen(p1);
+        //  case IfK :
+        //     p1 = tree->child[0];
+        //     p2 = tree->child[1];
+        //     p3 = tree->child[2];
+        //     /* generate code for test expression */
+        //     cGen(p1);
 //          savedLoc1 = emitSkip(1) ;
 //          emitComment("if: jump to else belongs here");
 //          /* recurse on then part */
@@ -68,7 +68,7 @@ static void genStmt( TreeNode * tree) {
 //          if (TraceCode)  emitComment("<- if") ;
 //          break; /* if_k */
 
-//       case RepeatK:
+//       case WhiletK:
 //          if (TraceCode) emitComment("-> repeat") ;
 //          p1 = tree->child[0] ;
 //          p2 = tree->child[1] ;
@@ -80,7 +80,7 @@ static void genStmt( TreeNode * tree) {
 //          cGen(p2);
 //          emitRM_Abs("JEQ",ac,savedLoc1,"repeat: jmp back to body");
 //          if (TraceCode)  emitComment("<- repeat") ;
-//          break; /* repeat */
+//          break; /* while_k */
 
       case AssignK:
          /* generate code for left and right operands */
@@ -88,18 +88,11 @@ static void genStmt( TreeNode * tree) {
          t2 = genExp(tree->child[1]);
          emitAssignInstruction("", t1, t2, "", "assign: store value");
          break; /* assign_k */
+        
+    //   case ReturnK :
+    //      // TODO: implement return instruction generation
+    //      break; /* decl_k */
 
-//       case ReadK:
-//          emitRO("IN",ac,0,0,"read integer value");
-//          loc = st_lookup(tree->attr.name);
-//          emitRM("ST",ac,loc,gp,"read: store value");
-//          break;
-//       case WriteK:
-//          /* generate code for expression to write */
-//          cGen(tree->child[0]);
-//          /* now output it */
-//          emitRO("OUT",ac,0,0,"write ac");
-//          break;
       default:
          break;
     }
@@ -137,34 +130,51 @@ char * genExp( TreeNode * tree) {
                 emitAssignInstruction("+", t3, t1, t2, "op +");
                 return t3;
                 break;
-            // case MINUS :
-            //    emitRO("SUB",ac,ac1,ac,"op -");
-            //    break;
-            // case TIMES :
-            //    emitRO("MUL",ac,ac1,ac,"op *");
-            //    break;
-            // case OVER :
-            //    emitRO("DIV",ac,ac1,ac,"op /");
-            //    break;
-            // case LT :
-            //    emitRO("SUB",ac,ac1,ac,"op <") ;
-            //    emitRM("JLT",ac,2,pc,"br if true") ;
-            //    emitRM("LDC",ac,0,ac,"false case") ;
-            //    emitRM("LDA",pc,1,pc,"unconditional jmp") ;
-            //    emitRM("LDC",ac,1,ac,"true case") ;
-            //    break;
-            // case EQ :
-            //    emitRO("SUB",ac,ac1,ac,"op ==") ;
-            //    emitRM("JEQ",ac,2,pc,"br if true");
-            //    emitRM("LDC",ac,0,ac,"false case") ;
-            //    emitRM("LDA",pc,1,pc,"unconditional jmp") ;
-            //    emitRM("LDC",ac,1,ac,"true case") ;
-            //    break;
+            case MINUS :
+               emitAssignInstruction("-", t3, t1, t2, "op -");
+               return t3;
+               break;
+            case TIMES :
+               emitAssignInstruction("*", t3, t1, t2, "op *");
+               return t3;
+               break;
+            case OVER :
+               emitAssignInstruction("/", t3, t1, t2, "op /");
+               return t3;
+               break;
+            case LT :
+               emitAssignInstruction("<", t3, t1, t2, "op <");
+               return t3;
+               break;
+            case LTEQ :
+               emitAssignInstruction("<=", t3, t1, t2, "op <=");
+               return t3;
+               break;
+            case GT :
+               emitAssignInstruction(">", t3, t1, t2, "op >");
+               return t3;
+               break;
+            case GTEQ :
+               emitAssignInstruction(">=", t3, t1, t2, "op >=");
+               return t3;
+               break;
+            case DIF :
+               emitAssignInstruction("!=", t3, t1, t2, "op !=");
+               return t3;
+               break;
+            case EQ :
+               emitAssignInstruction("==", t3, t1, t2, "op ==");
+               return t3;
+               break;
             default:
                emitComment("BUG: Unknown operator");
                break;
          } /* case op */
          break; /* OpK */
+
+    // case ActivK : 
+    //     // TODO: implement subroutine invocation code gen
+    //     break; /* ActivK */
 
     default:
       break;
@@ -208,5 +218,6 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
    /* generate intermediate code for C- program */
    cGen(syntaxTree);
    /* finish */
+   fprintf(code, "\n\r");
    emitComment("End of execution.");
 }

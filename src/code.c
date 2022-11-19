@@ -16,6 +16,8 @@
 /* TM location number for current instruction emission */
 static int variableNumber = 0 ;
 
+const int SPACE = 10;
+
 /* Procedure getNewVariable returns a new temporary 
  * variable to build the intermediate code
  */
@@ -47,27 +49,24 @@ void emitComment( char * c )
  */
 void emitAssignInstruction( char *op, char* le, char* ld, char* ld2, char *c) 
 {   if (strlen(op) == 0 && strlen(ld2) == 0) {
-        fprintf(code,"%s = %s", le, ld);
+        fprintf(code,"\r%*s%s = %s", SPACE, "", le, ld);
         if (TraceCode) fprintf(code,"\t%s",c) ;
-        fprintf(code,"\n") ;
-
     } else {
-        fprintf(code,"%s = %s %s %s", le, ld, op, ld2);
+        fprintf(code,"\r%*s%s = %s %s %s", SPACE, "", le, ld, op, ld2);
         if (TraceCode) fprintf(code,"\t%s",c) ;
-        fprintf(code,"\n") ;
     }
 } /* emitAssingInstruction */
 
-// /* Procedure emitAssignInstruction emits a assign instruction
-//  * that can be le = ld or le = ld op ld2
-//  * op = the numeric operator
-//  * le = the left target variable
-//  * ld = 1st right source variable
-//  * ld2 = 2nd right source variable
-//  * c = a comment to be printed if TraceCode is TRUE
-//  */
-// void emitAssignInstruction( char *op, char* le, char* ld, char* ld2, char *c) 
-// {
+/* Function emitLabel emits a code label
+ * before the intermediate code instruction
+ * label = the label for the line of code
+ * c = a comment to be printed if TraceCode is TRUE
+ */
+void emitLabel( char * label, char *c) 
+{   
+    fflush(code);
+    fprintf(code, "\n%10s:", label);
+    if (TraceCode) fprintf(code,"\t%s",c) ;
+} /* emitLabel */
 
-// }; /* emitAssingInstruction */
 

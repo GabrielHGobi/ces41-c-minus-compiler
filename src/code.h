@@ -49,7 +49,7 @@ void emitBranchInstruction( char * L, char* op, char* x, char* y, char *c);
  * label = the label for the line of code
  * c = a comment to be printed if TraceCode is TRUE
  */
-int emitLabel( char * label, char *c);
+void emitLabel( char * label, char *c);
 
 /* Procedure emitReturnInstruction emits a return instruction
  * that is return v
