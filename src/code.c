@@ -8,92 +8,66 @@
 /*                 Thiago Lopes                     */
 /****************************************************/
 
+#include <stdio.h>
 #include "globals.h"
 #include "code.h"
+#include "util.h"
 
 /* TM location number for current instruction emission */
-static int emitLoc = 0 ;
+static int variableNumber = 0 ;
 
-/* Highest TM location emitted so far
-   For use in conjunction with emitSkip,
-   emitBackup, and emitRestore */
-static int highEmitLoc = 0;
+/* Procedure getNewVariable returns a new temporary 
+ * variable to build the intermediate code
+ */
+char * getNewVariable( ) {
+    variableNumber++;
+    char * variableName;
+    variableName = malloc(12);
+    char * varNumberStr;
+    varNumberStr = malloc(11);
+    varNumberStr = intToString(variableNumber);
+    strcpy(variableName,"t");
+    strcat(variableName,varNumberStr);
+    return variableName;
+}
 
 /* Procedure emitComment prints a comment line 
  * with comment c in the code file
  */
 void emitComment( char * c )
-{ if (TraceCode) fprintf(code,"* %s\n",c);}
+{ if (TraceCode) fprintf(code,"* %s\n",c); }
 
-/* Procedure emitRO emits a register-only
- * TM instruction
- * op = the opcode
- * r = target register
- * s = 1st source register
- * t = 2nd source register
+/* Procedure emitAssignInstruction emits a assign instruction
+ * that can be le = ld or le = ld op ld2
+ * op = the numeric operator
+ * le = the left target variable
+ * ld = 1st right source variable
+ * ld2 = 2nd right source variable
  * c = a comment to be printed if TraceCode is TRUE
  */
-void emitRO( char *op, int r, int s, int t, char *c)
-{ fprintf(code,"%3d:  %5s  %d,%d,%d ",emitLoc++,op,r,s,t);
-  if (TraceCode) fprintf(code,"\t%s",c) ;
-  fprintf(code,"\n") ;
-  if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
-} /* emitRO */
+void emitAssignInstruction( char *op, char* le, char* ld, char* ld2, char *c) 
+{   if (strlen(op) == 0 && strlen(ld2) == 0) {
+        fprintf(code,"%s = %s", le, ld);
+        if (TraceCode) fprintf(code,"\t%s",c) ;
+        fprintf(code,"\n") ;
 
-/* Procedure emitRM emits a register-to-memory
- * TM instruction
- * op = the opcode
- * r = target register
- * d = the offset
- * s = the base register
- * c = a comment to be printed if TraceCode is TRUE
- */
-void emitRM( char * op, int r, int d, int s, char *c)
-{ fprintf(code,"%3d:  %5s  %d,%d(%d) ",emitLoc++,op,r,d,s);
-  if (TraceCode) fprintf(code,"\t%s",c) ;
-  fprintf(code,"\n") ;
-  if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
-} /* emitRM */
+    } else {
+        fprintf(code,"%s = %s %s %s", le, ld, op, ld2);
+        if (TraceCode) fprintf(code,"\t%s",c) ;
+        fprintf(code,"\n") ;
+    }
+} /* emitAssingInstruction */
 
-/* Function emitSkip skips "howMany" code
- * locations for later backpatch. It also
- * returns the current code position
- */
-int emitSkip( int howMany)
-{  int i = emitLoc;
-   emitLoc += howMany ;
-   if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
-   return i;
-} /* emitSkip */
+// /* Procedure emitAssignInstruction emits a assign instruction
+//  * that can be le = ld or le = ld op ld2
+//  * op = the numeric operator
+//  * le = the left target variable
+//  * ld = 1st right source variable
+//  * ld2 = 2nd right source variable
+//  * c = a comment to be printed if TraceCode is TRUE
+//  */
+// void emitAssignInstruction( char *op, char* le, char* ld, char* ld2, char *c) 
+// {
 
-/* Procedure emitBackup backs up to 
- * loc = a previously skipped location
- */
-void emitBackup( int loc)
-{ if (loc > highEmitLoc) emitComment("BUG in emitBackup");
-  emitLoc = loc ;
-} /* emitBackup */
+// }; /* emitAssingInstruction */
 
-/* Procedure emitRestore restores the current 
- * code position to the highest previously
- * unemitted position
- */
-void emitRestore(void)
-{ emitLoc = highEmitLoc;}
-
-/* Procedure emitRM_Abs converts an absolute reference 
- * to a pc-relative reference when emitting a
- * register-to-memory TM instruction
- * op = the opcode
- * r = target register
- * a = the absolute location in memory
- * c = a comment to be printed if TraceCode is TRUE
- */
-void emitRM_Abs( char *op, int r, int a, char * c)
-{ fprintf(code,"%3d:  %5s  %d,%d(%d) ",
-               emitLoc,op,r,a-(emitLoc+1),pc);
-  ++emitLoc ;
-  if (TraceCode) fprintf(code,"\t%s",c) ;
-  fprintf(code,"\n") ;
-  if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
-} /* emitRM_Abs */

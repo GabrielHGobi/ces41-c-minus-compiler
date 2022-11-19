@@ -9,6 +9,7 @@
 /****************************************************/
 
 #include "globals.h"
+#include "util.h"
 #include "symtab.h"
 #include "code.h"
 #include "cgen.h"
@@ -19,15 +20,27 @@
 */
 static int tmpOffset = 0;
 
-/* prototype for internal recursive code generator */
+/* prototype for internal recursive intermediate code generator */
 static void cGen (TreeNode * tree);
+
+/* prototype for recursive expression intermediate code generator */
+char * genExp (TreeNode * tree);
 
 /* Procedure genStmt generates code at a statement node */
 static void genStmt( TreeNode * tree) { 
-//   TreeNode * p1, * p2, * p3;
-//   int savedLoc1,savedLoc2,currentLoc;
-//   int loc;
-//   switch (tree->kind.stmt) {
+  TreeNode * p1, * p2, * p3;
+  char * t1, * t2, * t3; 
+  int savedLoc1,savedLoc2,currentLoc;
+  switch (tree->kind.stmt) {
+         
+         case DeclK :
+            if (tree->attr.id.type == Fun) {
+                p1 = tree->child[0];
+                p2 = tree->child[1];
+                /* do nothing for p1 */
+                cGen(p2);
+            } 
+            break; /* decl_k */
 
 //       case IfK :
 //          if (TraceCode) emitComment("-> if") ;
@@ -69,15 +82,12 @@ static void genStmt( TreeNode * tree) {
 //          if (TraceCode)  emitComment("<- repeat") ;
 //          break; /* repeat */
 
-//       case AssignK:
-//          if (TraceCode) emitComment("-> assign") ;
-//          /* generate code for rhs */
-//          cGen(tree->child[0]);
-//          /* now store value */
-//          loc = st_lookup(tree->attr.name);
-//          emitRM("ST",ac,loc,gp,"assign: store value");
-//          if (TraceCode)  emitComment("<- assign") ;
-//          break; /* assign_k */
+      case AssignK:
+         /* generate code for left and right operands */
+         t1 = genExp(tree->child[0]);
+         t2 = genExp(tree->child[1]);
+         emitAssignInstruction("", t1, t2, "", "assign: store value");
+         break; /* assign_k */
 
 //       case ReadK:
 //          emitRO("IN",ac,0,0,"read integer value");
@@ -90,80 +100,75 @@ static void genStmt( TreeNode * tree) {
 //          /* now output it */
 //          emitRO("OUT",ac,0,0,"write ac");
 //          break;
-//       default:
-//          break;
-//     }
+      default:
+         break;
+    }
 } /* genStmt */
 
 /* Procedure genExp generates code at an expression node */
-static void genExp( TreeNode * tree) { 
-//   int loc;
-//   TreeNode * p1, * p2;
-//   switch (tree->kind.exp) {
+char * genExp( TreeNode * tree) { 
+  TreeNode * p1, * p2;
+  char * t1, * t2, * t3;
+  switch (tree->kind.exp) {
 
-//     case ConstK :
-//       if (TraceCode) emitComment("-> Const") ;
-//       /* gen code to load integer constant using LDC */
-//       emitRM("LDC",ac,tree->attr.val,0,"load const");
-//       if (TraceCode)  emitComment("<- Const") ;
-//       break; /* ConstK */
+    case ConstK : ;
+        char *val = intToString(tree->attr.val);
+        return val;
+      break; /* ConstK */
     
-//     case IdK :
-//       if (TraceCode) emitComment("-> Id") ;
-//       loc = st_lookup(tree->attr.name);
-//       emitRM("LD",ac,loc,gp,"load id value");
-//       if (TraceCode)  emitComment("<- Id") ;
-//       break; /* IdK */
+    case IdK :
+      if (tree->attr.id.type == Var){
+        char *id = copyString(tree->attr.id.name);
+        return id;
+      }
+      break; /* IdK */
 
-//     case OpK :
-//          if (TraceCode) emitComment("-> Op") ;
-//          p1 = tree->child[0];
-//          p2 = tree->child[1];
-//          /* gen code for ac = left arg */
-//          cGen(p1);
-//          /* gen code to push left operand */
-//          emitRM("ST",ac,tmpOffset--,mp,"op: push left");
-//          /* gen code for ac = right operand */
-//          cGen(p2);
-//          /* now load left operand */
-//          emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
-//          switch (tree->attr.op) {
-//             case PLUS :
-//                emitRO("ADD",ac,ac1,ac,"op +");
-//                break;
-//             case MINUS :
-//                emitRO("SUB",ac,ac1,ac,"op -");
-//                break;
-//             case TIMES :
-//                emitRO("MUL",ac,ac1,ac,"op *");
-//                break;
-//             case OVER :
-//                emitRO("DIV",ac,ac1,ac,"op /");
-//                break;
-//             case LT :
-//                emitRO("SUB",ac,ac1,ac,"op <") ;
-//                emitRM("JLT",ac,2,pc,"br if true") ;
-//                emitRM("LDC",ac,0,ac,"false case") ;
-//                emitRM("LDA",pc,1,pc,"unconditional jmp") ;
-//                emitRM("LDC",ac,1,ac,"true case") ;
-//                break;
-//             case EQ :
-//                emitRO("SUB",ac,ac1,ac,"op ==") ;
-//                emitRM("JEQ",ac,2,pc,"br if true");
-//                emitRM("LDC",ac,0,ac,"false case") ;
-//                emitRM("LDA",pc,1,pc,"unconditional jmp") ;
-//                emitRM("LDC",ac,1,ac,"true case") ;
-//                break;
-//             default:
-//                emitComment("BUG: Unknown operator");
-//                break;
-//          } /* case op */
-//          if (TraceCode)  emitComment("<- Op") ;
-//          break; /* OpK */
+    case OpK :
+         p1 = tree->child[0];
+         p2 = tree->child[1];
+         /* gen code for left operand */
+         t1 = genExp(p1);
+         /* gen code for right operand */
+         t2 = genExp(p2);
+         /* target variable */
+         t3 = getNewVariable();
+         switch (tree->attr.op) {
+            case PLUS :
+                emitAssignInstruction("+", t3, t1, t2, "op +");
+                return t3;
+                break;
+            // case MINUS :
+            //    emitRO("SUB",ac,ac1,ac,"op -");
+            //    break;
+            // case TIMES :
+            //    emitRO("MUL",ac,ac1,ac,"op *");
+            //    break;
+            // case OVER :
+            //    emitRO("DIV",ac,ac1,ac,"op /");
+            //    break;
+            // case LT :
+            //    emitRO("SUB",ac,ac1,ac,"op <") ;
+            //    emitRM("JLT",ac,2,pc,"br if true") ;
+            //    emitRM("LDC",ac,0,ac,"false case") ;
+            //    emitRM("LDA",pc,1,pc,"unconditional jmp") ;
+            //    emitRM("LDC",ac,1,ac,"true case") ;
+            //    break;
+            // case EQ :
+            //    emitRO("SUB",ac,ac1,ac,"op ==") ;
+            //    emitRM("JEQ",ac,2,pc,"br if true");
+            //    emitRM("LDC",ac,0,ac,"false case") ;
+            //    emitRM("LDA",pc,1,pc,"unconditional jmp") ;
+            //    emitRM("LDC",ac,1,ac,"true case") ;
+            //    break;
+            default:
+               emitComment("BUG: Unknown operator");
+               break;
+         } /* case op */
+         break; /* OpK */
 
-//     default:
-//       break;
-//   } 
+    default:
+      break;
+  } 
 } /* genExp */
 
 /* Procedure cGen recursively generates code by

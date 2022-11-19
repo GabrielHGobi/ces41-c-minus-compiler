@@ -122,6 +122,15 @@ char * copyString(char * s)
   return t;
 }
 
+/* Function intToString converts a integer value
+ * to string
+ */
+char * intToString(int val)
+{ char valString[11];
+  sprintf(valString, "%d", val);
+  return copyString(valString);
+}
+
 /* Variable indentno is used by printTree to
  * store current number of spaces to indent
  */
