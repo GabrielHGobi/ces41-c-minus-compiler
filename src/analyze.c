@@ -45,6 +45,8 @@ static void nullProc(TreeNode * t)
   else return;
 }
 
+/* Errors detected by insertNode */
+
 static void notDeclaredError(TreeNode * t)
 { fprintf(listing,"Semantic error at line %d: '%s' was not declared in this scope\n",t->lineno, t->attr.id.name);
   Error = TRUE;
@@ -60,9 +62,8 @@ static void funAlreadyDeclaredError(TreeNode * t)
   Error = TRUE;
 }
 
-/* Procedure insertNode inserts 
- * identifiers stored in t into 
- * the symbol table 
+/* Procedure insertNode inserts identifiers stored in t into 
+ * the symbol table and do some semantical checks
  */
 static void insertNode( TreeNode * t)
 { switch (t->nodekind)
@@ -78,9 +79,11 @@ static void insertNode( TreeNode * t)
             }
           }
           else {
-            if (st_entry->idType == Var) {
-              if ((strcmp(st_entry->scope,currentScope) == 0) || (strcmp(st_entry->scope, "") == 0))
+            if (st_entry->idType == Var || st_entry->idType == Array) {
+              if ((strcmp(st_entry->scope,currentScope) == 0))
                 varAlreadyDeclaredError(t);
+              else
+                st_insert(t->attr.id.name, currentScope, t->attr.id.type, t->type, t->lineno);
             }
             else if (st_entry->idType == Fun) {
               funAlreadyDeclaredError(t);
@@ -97,12 +100,31 @@ static void insertNode( TreeNode * t)
       switch (t->kind.exp)
       { case IdK:
         case ActivK: ;
+          // Must check the scope for the Activ and Id
           BucketList st_entry = st_lookup(t->attr.id.name);
           if (st_entry == NULL) {
             notDeclaredError(t);
           }
           else {
-            st_insert(t->attr.id.name, currentScope, t->attr.id.type, t->type, t->lineno);
+            // It's in the same scope
+            if (st_entry->scope == currentScope) {
+              st_insert(t->attr.id.name, currentScope, t->attr.id.type, t->type, t->lineno);
+            }
+            else {
+              BucketList l = st_entry;
+              do {
+                // It's in a global scope
+                if ( (l != NULL) && (strcmp(l->scope, "") == 0) ){
+                  st_insert(t->attr.id.name, "", t->attr.id.type, t->type, t->lineno);
+                  break;
+                }
+                l = l->next;
+              } while ((l != NULL) && (strcmp(t->attr.id.name,l->name) == 0));
+              // The variable declaration exists in another local scope
+              if ( (st_entry == NULL) ||  (strcmp(t->attr.id.name,st_entry->name) != 0) ){
+                notDeclaredError(t);
+              }
+            }
           }
           break;
         default:
@@ -114,6 +136,9 @@ static void insertNode( TreeNode * t)
   }
 }
 
+/* Function changeScope updates the scope to the previous 
+ * when exiting some scope when traversing is postorder
+ */
 static void changeScope(TreeNode * t) {
   if (t == NULL) return;
   if (t->nodekind == StmtK && t->kind.stmt == DeclK && t->attr.id.type == Fun) {
@@ -146,6 +171,8 @@ void buildSymtab(TreeNode * syntaxTree)
     printSymTab(listing);
   }
 }
+
+/* Errors detected by checkNode */
 
 static void typeError(TreeNode * t, char * message)
 { fprintf(listing,"Semantic error at line %d: %s\n", t->lineno, message);
@@ -180,9 +207,6 @@ static void checkNode(TreeNode * t)
         case IdK:
           if (t->attr.id.type == Var || t->attr.id.type == Array)
             t->type = Integer;
-          else if (t->attr.id.type == Fun){
-            // BucketList l = hashTable[i];
-          }
           break;
         default:
           break;

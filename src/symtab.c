@@ -47,8 +47,7 @@ void st_insert( char * name, char * scopeName,
 { int h = hash(name);
   BucketList l =  hashTable[h];
   while ((l != NULL) && ((strcmp(name,l->name) != 0) 
-                     || ((strcmp(scopeName,l->scope) != 0) 
-                         && (strcmp(l->scope, "") != 0))))
+                     || (strcmp(scopeName,l->scope) != 0) ))
     l = l->next;
   if (l == NULL) /* variable not yet in table */
   { l = (BucketList) malloc(sizeof(struct BucketListRec));
