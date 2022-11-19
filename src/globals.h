@@ -118,6 +118,11 @@ extern int TraceParse;
  */
 extern int TraceAnalyze;
 
+/* TraceCode = TRUE causes comments to be written
+ * to the TM code file as code is generated
+ */
+extern int TraceCode;
+
 /* Error = TRUE prevents further passes if an error occurs */
 extern int Error;
 
