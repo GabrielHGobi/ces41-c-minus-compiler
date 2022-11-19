@@ -367,5 +367,5 @@ C- COMPILATION: examples/missing_parentheses.cm
 Syntax error at line 4: syntax error
 Current token: {
 
-(...)
+Syntax tree:
 ```
