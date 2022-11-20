@@ -14,11 +14,8 @@
 #include "code.h"
 #include "cgen.h"
 
-/* tmpOffset is the memory offset for temps
-   It is decremented each time a temp is
-   stored, and incremeted when loaded again
-*/
-static int tmpOffset = 0;
+/* size of the int variable in bytes for array access */
+const int INT_BYTE_SIZE = 4;
 
 /* prototype for internal recursive intermediate code generator */
 static void cGen (TreeNode * tree);
@@ -29,13 +26,14 @@ char * genExp (TreeNode * tree);
 /* Procedure genStmt generates code at a statement node */
 static void genStmt( TreeNode * tree) { 
   TreeNode * p1, * p2, * p3;
-  char * t1, * t2, * t3; 
+  char * t1, * t2, * t3;
+  char * l1, *l2;
   int savedLoc1,savedLoc2,currentLoc;
   switch (tree->kind.stmt) {
          
          case DeclK :
             if (tree->attr.id.type == Fun) {
-                emitLabel(tree->attr.id.name, "subroutine decl");
+                emitLabel(tree->attr.id.name);
                 p1 = tree->child[0];
                 p2 = tree->child[1];
                 /* do nothing for p1 */
@@ -43,55 +41,59 @@ static void genStmt( TreeNode * tree) {
             } 
             break; /* decl_k */
 
-        //  case IfK :
-        //     p1 = tree->child[0];
-        //     p2 = tree->child[1];
-        //     p3 = tree->child[2];
-        //     /* generate code for test expression */
-        //     cGen(p1);
-//          savedLoc1 = emitSkip(1) ;
-//          emitComment("if: jump to else belongs here");
-//          /* recurse on then part */
-//          cGen(p2);
-//          savedLoc2 = emitSkip(1) ;
-//          emitComment("if: jump to end belongs here");
-//          currentLoc = emitSkip(0) ;
-//          emitBackup(savedLoc1) ;
-//          emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-//          emitRestore() ;
-//          /* recurse on else part */
-//          cGen(p3);
-//          currentLoc = emitSkip(0) ;
-//          emitBackup(savedLoc2) ;
-//          emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
-//          emitRestore() ;
-//          if (TraceCode)  emitComment("<- if") ;
-//          break; /* if_k */
+         case IfK :
+            p1 = tree->child[0];
+            p2 = tree->child[1];
+            p3 = tree->child[2];
+            /* generate code for test expression */
+            t1 = genExp(tree->child[0]);
+            /* branch labels for true and false blocks */
+            l1 = getNewBranchLabel();
+            l2 = getNewBranchLabel();
+            /* branch instruction */
+            emitBranchInstruction(t1, l1, TRUE);
+            if (p3 != NULL)
+               cGen(p3);
+            emitBranchInstruction("", l2, -1);
+            emitLabel(l1);
+            cGen(p2);
+            emitLabel(l2);
+            break; /* if_k */
 
-//       case WhiletK:
-//          if (TraceCode) emitComment("-> repeat") ;
-//          p1 = tree->child[0] ;
-//          p2 = tree->child[1] ;
-//          savedLoc1 = emitSkip(0);
-//          emitComment("repeat: jump after body comes back here");
-//          /* generate code for body */
-//          cGen(p1);
-//          /* generate code for test */
-//          cGen(p2);
-//          emitRM_Abs("JEQ",ac,savedLoc1,"repeat: jmp back to body");
-//          if (TraceCode)  emitComment("<- repeat") ;
-//          break; /* while_k */
+         case WhileK:
+            p1 = tree->child[0];
+            p2 = tree->child[1];
+            /* branch labels for repeat and next instruction blocks */
+            l1 = getNewBranchLabel();
+            l2 = getNewBranchLabel();
+            /* repeat block*/
+            emitLabel(l1);
+            /* generate code for test expression */
+            t1 = genExp(p1);
+            /* branch instruction */
+            emitBranchInstruction(t1, l2, FALSE);
+            cGen(p2);
+            emitBranchInstruction("", l1, -1);
+            /* next instruction block */
+            emitLabel(l2);
+            break; /* while_k */
 
       case AssignK:
+         p1 = tree->child[0];
+         p2 = tree->child[1];
          /* generate code for left and right operands */
-         t1 = genExp(tree->child[0]);
-         t2 = genExp(tree->child[1]);
-         emitAssignInstruction("", t1, t2, "", "assign: store value");
+         t1 = genExp(p1);
+         t2 = genExp(p2);
+         emitAssignInstruction("", t1, t2, "");
          break; /* assign_k */
         
-    //   case ReturnK :
-    //      // TODO: implement return instruction generation
-    //      break; /* decl_k */
+      case ReturnK :
+         p1 = tree->child[0];
+         if (p1 != NULL) {
+            t1 = genExp(p1);
+            emitReturnInstruction(t1);
+         }
+         break; /* decl_k */
 
       default:
          break;
@@ -100,6 +102,7 @@ static void genStmt( TreeNode * tree) {
 
 /* Procedure genExp generates code at an expression node */
 char * genExp( TreeNode * tree) { 
+  int countParams;
   TreeNode * p1, * p2;
   char * t1, * t2, * t3;
   switch (tree->kind.exp) {
@@ -113,7 +116,20 @@ char * genExp( TreeNode * tree) {
       if (tree->attr.id.type == Var){
         char *id = copyString(tree->attr.id.name);
         return id;
-      }
+      } /* IdK Var */
+      else if (tree->attr.id.type == Array){
+        p1 = tree->child[0];
+        char* index = genExp(p1);
+        t1 = getNewVariable();
+        emitArrayAccessInstruction(t1, index, INT_BYTE_SIZE);
+        char* arrayAccess;
+        arrayAccess = malloc(strlen(tree->attr.id.name) + 3 + strlen(t1));
+        strcat(arrayAccess, tree->attr.id.name);
+        strcat(arrayAccess, "[");
+        strcat(arrayAccess, t1);
+        strcat(arrayAccess, "]");
+        return arrayAccess;
+      } /* IdK Array */
       break; /* IdK */
 
     case OpK :
@@ -127,43 +143,43 @@ char * genExp( TreeNode * tree) {
          t3 = getNewVariable();
          switch (tree->attr.op) {
             case PLUS :
-                emitAssignInstruction("+", t3, t1, t2, "op +");
+                emitAssignInstruction("+", t3, t1, t2);
                 return t3;
                 break;
             case MINUS :
-               emitAssignInstruction("-", t3, t1, t2, "op -");
+               emitAssignInstruction("-", t3, t1, t2);
                return t3;
                break;
             case TIMES :
-               emitAssignInstruction("*", t3, t1, t2, "op *");
+               emitAssignInstruction("*", t3, t1, t2);
                return t3;
                break;
             case OVER :
-               emitAssignInstruction("/", t3, t1, t2, "op /");
+               emitAssignInstruction("/", t3, t1, t2);
                return t3;
                break;
             case LT :
-               emitAssignInstruction("<", t3, t1, t2, "op <");
+               emitAssignInstruction("<", t3, t1, t2);
                return t3;
                break;
             case LTEQ :
-               emitAssignInstruction("<=", t3, t1, t2, "op <=");
+               emitAssignInstruction("<=", t3, t1, t2);
                return t3;
                break;
             case GT :
-               emitAssignInstruction(">", t3, t1, t2, "op >");
+               emitAssignInstruction(">", t3, t1, t2);
                return t3;
                break;
             case GTEQ :
-               emitAssignInstruction(">=", t3, t1, t2, "op >=");
+               emitAssignInstruction(">=", t3, t1, t2);
                return t3;
                break;
             case DIF :
-               emitAssignInstruction("!=", t3, t1, t2, "op !=");
+               emitAssignInstruction("!=", t3, t1, t2);
                return t3;
                break;
             case EQ :
-               emitAssignInstruction("==", t3, t1, t2, "op ==");
+               emitAssignInstruction("==", t3, t1, t2);
                return t3;
                break;
             default:
@@ -172,9 +188,20 @@ char * genExp( TreeNode * tree) {
          } /* case op */
          break; /* OpK */
 
-    // case ActivK : 
-    //     // TODO: implement subroutine invocation code gen
-    //     break; /* ActivK */
+    case ActivK : 
+        // TODO: implement subroutine invocation code gen
+        p1 = tree->child[0];
+        countParams = 0;
+        while( p1 != NULL ){
+            countParams++;
+            t1 = genExp(p1);
+            emitParamInstruction(t1);
+            p1 = p1->sibling;
+        }
+        t1 = getNewVariable();
+        emitCallInstruction(t1, tree->attr.id.name, countParams);
+        return t1;
+        break; /* ActivK */
 
     default:
       break;
@@ -218,6 +245,7 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
    /* generate intermediate code for C- program */
    cGen(syntaxTree);
    /* finish */
+   emitHaltInstruction();
    fprintf(code, "\n\r");
    emitComment("End of execution.");
 }
