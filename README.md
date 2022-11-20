@@ -369,3 +369,41 @@ Current token: {
 
 Syntax tree:
 ```
+
+### Semantic analyzer - _analyzer_
+
+In order to implement the semantic analysis of the code as method `buildSymtab`, we initially built the symbol table through a linked hash table whose lines contain fields: name, scope, ID type, data type and list of lines in which the element appears in the source code.
+
+The table manipulation interface described above was built based on methods:
+- `st_insert`  
+    ```
+    inserts element and its information in the symbol table, if element already exists, just adds line where it was observed again.
+    ```
+- `st_lookup` 
+    ```
+    returns the position in the table of the desired element or NULL if it does not exist.
+    ```
+- `printSymTab` 
+    ```
+    prints table for visualization purposes.
+    ```
+It is worth mentioning the use of the `insertNode` method in the pre-order construction of the table, which encapsulates the `st_insert` function and implements the following semantic checks:
+- undeclared variable:
+`notDeclaredError`
+- undeclared function: also
+`notDeclaredError`
+- variable already declared: `varAlreadyDeclaredError`
+- invalid declaration, with name already declared as function:
+`funAlreadyDeclaredError`
+
+Next, the existence of the `main` function declaration is checked using the `mainCheck` method, which encapsulates performing a `st_lookup("main")` search.
+
+Then, the other syntactic analysis operations were performed using the `typeCheck` function, which traverses the syntax tree in post-order, performing the semantic check on each node using `checkNode`.
+
+In `checkNode`, semantic checks are carried out for invalid assignments and invalid declarations using void, with specific descriptions of each possibility of error using the `typeError` function, such as:
+- `typeError(t->child[0],"if test is not Boolean")`
+- `typeError(t, "variable declared void")`
+
+### INCLUDE EXAMPLE AND 7 SEMANTIC_ERRORS ALREADY CREATED HERE
+
+### Code generator - _cgen_
