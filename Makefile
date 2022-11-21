@@ -5,6 +5,7 @@ PROJ_NAME=cminus
 LEX=_scanner
 SYNT=_parser
 ANALYZ=_analyzer
+CGEN=_code_gen
 
 # Base directories
 BUILD_DIR=./build/
@@ -23,6 +24,7 @@ COMMON_C_SOURCE=$(SRC_DIR)main.c $(SRC_DIR)util.c
 FLEX_C_SOURCE=$(SRC_DIR)lex.yy.c
 BISON_C_SOURCE=$(SRC_DIR)cminus.tab.c
 ANALYZER_C_SOURCE=$(SRC_DIR)symtab.c $(SRC_DIR)analyze.c
+CODEGEN_C_SOURCE=$(SRC_DIR)code.c $(SRC_DIR)cgen.c
 
 # .h files
 BISON_H=$(SRC_DIR)cminus.tab.h
@@ -44,7 +46,7 @@ SP=bison
 FLAGS= -lfl
      
 # Compilation and linking
-all: analyzer	
+all: code_gen	
 
 scanner: build_dir
 	$(LA) $(FLEX_FILE)
@@ -69,9 +71,19 @@ analyzer: build_dir
 	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
 	@ mv $(BISON_C_RESULT) $(SRC_DIR)
 	@ mv $(BISON_H_RESULT) $(SRC_DIR)
-	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(ANALYZER_C_SOURCE)
+	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(ANALYZER_C_SOURCE) -DNO_CODE=TRUE
 	@ mv *.o -t $(BUILD_DIR)
 	$(CC) -o $(PROJ_NAME)$(ANALYZ) $(BUILD_DIR)*.o $(FLAGS)	
+
+code_gen: build_dir
+	$(LA) $(FLEX_FILE)
+	$(SP) -d $(BISON_FILE)
+	@ mv $(FLEX_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_C_RESULT) $(SRC_DIR)
+	@ mv $(BISON_H_RESULT) $(SRC_DIR)
+	$(CC) -c $(COMMON_C_SOURCE) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(ANALYZER_C_SOURCE) $(CODEGEN_C_SOURCE)
+	@ mv *.o -t $(BUILD_DIR)
+	$(CC) -o $(PROJ_NAME)$(CGEN) $(BUILD_DIR)*.o $(FLAGS)	
 
 clean:
 	rm -rf $(BUILD_DIR) $(FLEX_C_SOURCE) $(BISON_C_SOURCE) $(PROJ_NAME)_*

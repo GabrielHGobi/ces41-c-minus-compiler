@@ -36,6 +36,11 @@ TreeNode * newExpNode(ExpKind);
  */
 char * copyString( char * );
 
+/* Function intToString converts a integer value
+ * to string
+ */
+char * intToString( int );
+
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
  */

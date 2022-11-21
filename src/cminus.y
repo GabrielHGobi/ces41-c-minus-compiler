@@ -44,7 +44,7 @@ program     : stmt_seq
 stmt_seq    : stmt_seq stmt 
               { YYSTYPE t = $1;
                 if ( t != NULL)
-                { while (t->sibling != NULL)
+                { while (t->sibling != NULL) 
                       t = t->sibling;
                   t->sibling = $2;
                   $$ = $1; }
@@ -77,9 +77,9 @@ var_stmt    : spec_type ID
                 { $$ = $6; }
             ;
 // 5. tipo-especificador → int | void
-spec_type   : INT { $$ = newExpNode(IdK);
+spec_type   : INT { $$ = newStmtNode(DeclK);
                     $$->type = Integer; }
-            | VOID { $$ = newExpNode(IdK);
+            | VOID { $$ = newStmtNode(DeclK);
                      $$->type = Void; }
             ;
 // 6. fun-declaração → tipo-especificador ID ( params ) composto-decl

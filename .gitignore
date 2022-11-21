@@ -63,5 +63,8 @@ build/*
 cminus_*
 cm_*
 
+# Intermediate code files
+*.cmm
+
 # IDE settings files
 .vscode
