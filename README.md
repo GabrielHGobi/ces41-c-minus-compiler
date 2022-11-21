@@ -23,17 +23,18 @@ sudo apt-get install bison
 
 ```
 ├── src
+│   ├── cgen.c
+│   ├── cgen.h
 │   ├── cminus.l
 |   ├── cminus.y
+│   ├── code.c
+│   ├── code.h
 │   ├── globals.h
 │   ├── main.c
-│   ├── scan.h
-│   ├── parse.c
 │   ├── parse.h
+│   ├── scan.h
 │   ├── symtab.c
 │   ├── symtab.h
-│   ├── analyze.c
-│   ├── analyze.h
 │   ├── util.c
 │   └── util.h
 ├── examples
